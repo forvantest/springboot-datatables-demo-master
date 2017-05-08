@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="/dataTables.bootstrap.css"/>
 <link rel="stylesheet" href="/bootstrap-datetimepicker-master/css/bootstrap-datetimepicker.min.css"/>
 
-<script src="/jQuery-2.1.4.min.js"></script>
+<script src="/jQuery-2.1.4.js"></script>
 <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.js"></script>
 <script src="/jquery.dataTables.js"></script>
 <script src="/dataTables.bootstrap.js"></script>
@@ -29,7 +29,7 @@
     var editFlag = false;
     $(function () {
  
-		$('#start_date').datetimepicker();
+		$('#startDate').datetimepicker();
  
 		var tpl = $("#tpl").html();
         //預編譯模板
@@ -41,13 +41,14 @@
 			},
             serverSide: true,
             columns: [
-                {"data": "name"},
+                {"data": "staffId"},
+				{"data": "name"},
                 {"data": "position"},
                 {"data": "salary"},
-				{	"data": "start_date",
+				{	"data": "startDate",
 					render: function (data, type, row) {
 						var regex=/-/gi;  // 不能寫成 regex="/book\d+/gi";
-						return row.start_date=row.start_date.replace(regex,"/");
+						return row.startDate=row.startDate.replace(regex,"/");
 					}
 				},
                 {"data": "office"},
@@ -55,14 +56,17 @@
                 {"data": null}
             ],
             columnDefs: [
+                { searchable: false, 
+                  visible: false, 
+                  targets: 0 },
                 {
-                    targets: 6,
+                    targets: 7,
                     render: function (a, b, c, d) {
                         var context =
                         {
                             func: [
-                                {"name": "修改", "fn": "edit(\'" + c.staff_id + "\',\'" + c.name + "\',\'" + c.position + "\',\'" + c.salary + "\',\'" + c.start_date + "\',\'" + c.office + "\',\'" + c.extn + "\')", "type": "primary"},
-                                {"name": "刪除", "fn": "del(\'" + c.staff_id + "\')", "type": "danger"}
+                                {"name": "修改", "fn": "edit(\'" + c.staffId + "\',\'" + c.name + "\',\'" + c.position + "\',\'" + c.salary + "\',\'" + c.startDate + "\',\'" + c.office + "\',\'" + c.extn + "\')", "type": "primary"},
+                                {"name": "刪除", "fn": "del(\'" + c.staffId + "\')", "type": "danger"}
                             ]
                         };
                         var html = template(context);
@@ -77,6 +81,7 @@
                 "info": "第 _PAGE_ 頁 ( 總共 _PAGES_ 頁 )",
                 "infoEmpty": "無記錄",
                 "infoFiltered": "(從 _MAX_ 條記錄過濾)",
+				"search":"搜索:",
                 "paginate": {
                     "previous": "上一頁",
                     "next": "下一頁"
@@ -94,16 +99,39 @@
  
         });
  
+		$('input.global_filter').on( 'keyup click', function () {
+		    filterGlobal();
+		} );
+		
+		$('input.column_filter').on( 'keyup', function () {
+		    filterColumn( $(this).parents('tr').attr('data-column') );
+		} );
+
         $("#save").click(add);
 
         $("#initData").click(initSingleData);
  
     });
  
+	function filterGlobal () {
+	    $('#example').DataTable().search(
+	        $('#global_filter').val(),
+	        $('#global_regex').prop('checked'),
+	        $('#global_smart').prop('checked')
+	    ).draw();
+	}
+	 
+	function filterColumn ( i ) {
+	    $('#example').DataTable().column( i ).search(
+	        $('#col'+i+'_filter').val(),
+	        $('#col'+i+'_regex').prop('checked'),
+	        $('#col'+i+'_smart').prop('checked')
+	    ).draw();
+	}
 
     function openAdd() {
 		clear();
-		$("#staff_id").val("").hide();
+		$("#staffId").val("").hide();
         $("#myModal").modal('show');
     }
     /**
@@ -128,7 +156,7 @@
         $("#name").val("http://dt.thxopen.com");
         $("#position").val("ShiMen");
         $("#salary").val("1");
-        $("#start_date").val("2015/04/01");
+        $("#startDate").val("2015/04/01");
         $("#office").val("Home");
         $("#extn").val("001");
     }
@@ -137,11 +165,11 @@
      * 清除
      */
     function clear() {
-	    $("#staff_id").val("");
+	    $("#staffId").val("");
         $("#name").val("");
         $("#position").val("");
         $("#salary").val("");
-        $("#start_date").val("");
+        $("#startDate").val("");
         $("#office").val("");
         $("#extn").val("");
         editFlag = false;
@@ -152,11 +180,11 @@
      **/
     function add() {
         var addJson = {
-		    "staff_id": $("#staff_id").val(),
+		    "staffId": $("#staffId").val(),
             "name": $("#name").val(),
             "position": $("#position").val(),
             "salary": $("#salary").val(),
-            "start_date": $("#start_date").val(),
+            "startDate": $("#startDate").val(),
             "office": $("#office").val(),
             "extn": $("#extn").val()
         };
@@ -167,15 +195,15 @@
     /**
      *編輯方法
      **/
-    function edit(staff_id,name,position,salary,start_date,office,extn) {
+    function edit(staffId,name,position,salary,startDate,office,extn) {
         console.log(name);
         editFlag = true;
         $("#myModalLabel").text("修改");
-        $("#staff_id").val(staff_id).attr("disabled",true).show();
+        $("#staffId").val(staffId).attr("disabled",true).show();
         $("#name").val(name);
         $("#position").val(position);
         $("#salary").val(salary);
-        $("#start_date").val(start_date);
+        $("#startDate").val(startDate);
         $("#office").val(office);
         $("#extn").val(extn);
         $("#myModal").modal("show");
@@ -190,11 +218,11 @@
             url:url ,
 			type: 'POST',
             data: {
-	 			"staff_id":obj.staff_id,
+	 			"staffId":obj.staffId,
                 "name": obj.name,
                 "position": obj.position,
                 "salary": obj.salary,
-                "start_date": obj.start_date,
+                "startDate": obj.startDate,
                 "office": obj.office,
                 "extn": obj.extn
             }, success: function (data) {
@@ -212,11 +240,11 @@
      * 刪除數據
      * @param name
      */
-    function del(staff_id) {
+    function del(staffId) {
         $.ajax({
             url: "/del",
             data: {
-                "staff_id": staff_id
+                "staffId": staffId
             }, success: function (data) {
                 table.ajax.reload();
                 console.log("刪除成功" + data);
@@ -229,9 +257,66 @@
 <body>
 
 <div class="container">
+	<table cellpadding="3" cellspacing="0" border="0" style="width: 67%; margin: 0 auto 2em auto;">
+        <thead>
+            <tr>
+                <th>Target</th>
+                <th>Search text</th>
+                <th>Treat as regex</th>
+                <th>Use smart search</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="filter_global">
+                <td>Global search</td>
+                <td align="center"><input type="text" class="global_filter" id="global_filter"></td>
+                <td align="center"><input type="checkbox" class="global_filter" id="global_regex"></td>
+                <td align="center"><input type="checkbox" class="global_filter" id="global_smart" checked="checked"></td>
+            </tr>
+         
+            <tr id="filter_col1" data-column="1">
+                <td>Column - Name</td>
+                <td align="center"><input type="text" class="column_filter" id="col1_filter"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col1_regex"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col1_smart" checked="checked"></td>
+            </tr>
+            <tr id="filter_col2" data-column="2">
+                <td>Column - Position</td>
+                <td align="center"><input type="text" class="column_filter" id="col2_filter"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col2_regex"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col2_smart" checked="checked"></td>
+            </tr>
+            <tr id="filter_col3" data-column="3">
+                <td>Column - Salary</td>
+                <td align="center"><input type="text" class="column_filter" id="col3_filter"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col3_regex"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col3_smart" checked="checked"></td>
+            </tr>
+            <tr id="filter_col4" data-column="4">
+                <td>Column - Start date</td>
+                <td align="center"><input type="text" class="column_filter" id="col4_filter"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col4_regex"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col4_smart" checked="checked"></td>
+            </tr>
+            <tr id="filter_col5" data-column="5">
+                <td>Column - Office</td>
+                <td align="center"><input type="text" class="column_filter" id="col5_filter"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col5_regex"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col5_smart" checked="checked"></td>
+            </tr>
+           <tr id="filter_col6" data-column="6">
+                <td>Column - Extn</td>
+                <td align="center"><input type="text" class="column_filter" id="col6_filter"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col6_regex"></td>
+                <td align="center"><input type="checkbox" class="column_filter" id="col6_smart" checked="checked"></td>
+            </tr>
+        </tbody>
+    </table>
+
 	<table id="example" class="table table-striped table-bordered">
 		<thead>
 			<tr>
+			    <th>ID</th>
 				<th>姓名</th>
 				<th>地點</th>
 				<th>薪水</th>
@@ -260,7 +345,7 @@
 			</div>
 			<div class="modal-body">
 			    <div class="form-group">
-					<input type="text" class="form-control" id="staff_id" placeholder="Staff ID">
+					<input type="text" class="form-control" id="staffId" placeholder="Staff ID">
 				</div>
 				<div class="form-group">
 					<input type="text" class="form-control" id="name" placeholder="姓名">
@@ -272,7 +357,7 @@
 					<input type="text" class="form-control" id="salary" placeholder="薪資">
 				</div>
 				<div class="form-group">
-					<input type="text" class="form-control" id="start_date" placeholder="時間" data-date-format="yyyy/mm/dd hh:ii">
+					<input type="text" class="form-control" id="startDate" placeholder="時間" data-date-format="yyyy/mm/dd hh:ii">
 				</div>
 				
 				<div class="form-group">

@@ -18,7 +18,7 @@ public class Staff {
 	@Id
 	@GeneratedValue(generator = "system_uuid")
 	@GenericGenerator(name = "system_uuid", strategy = "uuid")
-	private String staff_id;
+	private String staffId;
 
 	@Column(nullable = false)
 	private String name;
@@ -26,16 +26,18 @@ public class Staff {
 	private String position;
 	private String salary;
 	@CreationTimestamp
-	private Date start_date;
+	private Date startDate;
 	private String office;
 	private String extn;
 
-	public String getStaff_id() {
-		return staff_id;
+	// ==================================================================================
+
+	public String getStaffId() {
+		return staffId;
 	}
 
-	public void setStaff_id(String staff_id) {
-		this.staff_id = staff_id;
+	public void setStaffId(String staffId) {
+		this.staffId = staffId;
 	}
 
 	public String getName() {
@@ -62,12 +64,12 @@ public class Staff {
 		this.salary = salary;
 	}
 
-	public Date getStart_date() {
-		return start_date;
+	public Date getStartDate() {
+		return startDate;
 	}
 
-	public void setStart_date(Date start_date) {
-		this.start_date = start_date;
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
 	}
 
 	public String getOffice() {

@@ -8,6 +8,8 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
 import org.springframework.data.jpa.datatables.mapping.DataTablesOutput;
+import org.springframework.data.jpa.datatables.parameter.SearchParameter;
+import org.springframework.data.jpa.domain.Specifications;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,6 +54,10 @@ public class AppController {
 	@RequestMapping(value = "all2", method = RequestMethod.GET)
 	public DataTablesOutput<Staff> messages2(@Valid DataTablesInput input) {
 		try {
+			SearchParameter searchParameter = input.getSearch();
+			if ("".equals(searchParameter.getValue()))
+				return staffRepository.findAll(input);
+
 			return staffRepository.findAll(input);
 		} catch (Exception e) {
 			return null;
